@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Dashboard Operativo Gamarelli</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --azul: #1F4E78;
+    --bg: #F5F6F8;
+    --card: #FFFFFF;
+    --texto: #1F2933;
+    --texto-sec: #6B7785;
+    --borde: #E4E7EB;
+    --verde: #1E8E5A;
+    --rojo: #C0392B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--texto);
+    font-family: -apple-system, "Segoe UI", Roboto, Calibri, Arial, sans-serif;
+  }
+  header {
+    background: #fff; border-bottom: 1px solid var(--borde);
+    padding: 16px 24px; display: flex; align-items: center; gap: 16px;
+  }
+  header img { height: 34px; }
+  header .titulo { font-size: 1.05rem; font-weight: 700; color: var(--azul); }
+  header .fecha { margin-left: auto; font-size: 0.85rem; color: var(--texto-sec); text-align: right; }
+  nav.tabs {
+    background: #fff; border-bottom: 1px solid var(--borde);
+    position: sticky; top: 0; z-index: 10;
+    display: flex; gap: 4px; padding: 0 16px; overflow-x: auto;
+  }
+  nav.tabs button {
+    border: none; background: transparent; cursor: pointer;
+    padding: 12px 14px; font-size: 0.85rem; font-weight: 600; color: var(--texto-sec);
+    border-bottom: 3px solid transparent; white-space: nowrap;
+  }
+  nav.tabs button:hover { color: var(--azul); }
+  nav.tabs button.active { color: var(--azul); border-bottom-color: var(--azul); }
+  main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 60px; }
+  h2 { font-size: 1rem; color: var(--azul); margin: 32px 0 12px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .kpi { background: var(--card); border: 1px solid var(--borde); border-radius: 10px; padding: 14px 16px; }
+  .kpi .label { font-size: 0.75rem; color: var(--texto-sec); margin-bottom: 4px; }
+  .kpi .valor { font-size: 1.35rem; font-weight: 700; }
+  .card { background: var(--card); border: 1px solid var(--borde); border-radius: 10px; padding: 16px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+  .nota { font-size: 0.8rem; color: var(--texto-sec); margin-top: 6px; }
+  canvas { max-height: 300px; }
+  footer { text-align: center; color: var(--texto-sec); font-size: 0.75rem; padding: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="titulo">Dashboard Operativo — Gamarelli (El Alamo / Difusora Castex)</div>
+  <div class="fecha">Actualizado: <span id="fecha-actualizacion"></span></div>
+</header>
+<nav class="tabs" id="tabNav"></nav>
+<main id="tabPanels"></main>
+<footer>Generado automaticamente por el pipeline diario de Gamarelli · no reemplaza ni modifica el informe/Excel que se envia automaticamente.</footer>
+
+<script>
+const DATA = {"generated_at": "31-08-2026 15:17", "ym_actual": "2026-08", "ym_anterior": "2026-07", "tabs": [{"id": "consolidado", "label": "Consolidado", "cache_hasta": "31-08-2026", "facturado": {"anterior": 118650705.43, "actual": 118392994.88}, "cobrado": {"anterior": 118264514.2, "actual": 110361825.12}, "cobrado_comparativa": {"fecha_actual": "31-08-2026", "dias_habiles_actual": 21, "fecha_anterior": "28-07-2026", "dias_habiles_anterior": 20, "cobr_anterior": 103157593.09}, "altas_bajas": [{"servicio": "TV", "altas_anterior": 21, "altas_actual": 10, "bajas_anterior": 21, "bajas_actual": 22}, {"servicio": "Internet", "altas_anterior": 9, "altas_actual": 10, "bajas_anterior": 17, "bajas_actual": 24}, {"servicio": "Dúo (combo)", "altas_anterior": 7, "altas_actual": 2, "bajas_anterior": 7, "bajas_actual": 12}, {"servicio": "Dibox", "inferido": true, "altas_anterior": 3, "altas_actual": 7, "bajas_anterior": 10, "bajas_actual": 293}], "pendientes": [{"servicio": "TV", "cantidad": 0}, {"servicio": "Internet", "cantidad": 0}, {"servicio": "Dúo (combo)", "cantidad": 0}], "activos": [{"servicio": "TV", "cantidad": 838}, {"servicio": "Internet", "cantidad": 708}, {"servicio": "Dúo (combo)", "cantidad": 1053}], "saldo_clientes": {"saldo_inicial": 2851, "altas": 19, "recupero": 0, "bajas_vol": 23, "bajas_mora": 34, "migracion": 0, "saldo_final": 2813}, "medios_cobro": null, "arpu_residencial": null, "churn_residencial": null}, {"id": "elalamo", "label": "El Alamo", "cache_hasta": "31-08-2026", "facturado": {"anterior": 52680444.74, "actual": 53123402.79}, "cobrado": {"anterior": 52046983.81, "actual": 47834267.81}, "cobrado_comparativa": {"fecha_actual": "31-08-2026", "dias_habiles_actual": 21, "fecha_anterior": "28-07-2026", "dias_habiles_anterior": 20, "cobr_anterior": 45237472.81}, "altas_bajas": [{"servicio": "TV", "altas_anterior": 14, "altas_actual": 8, "bajas_anterior": 4, "bajas_actual": 16}, {"servicio": "Internet", "altas_anterior": 6, "altas_actual": 6, "bajas_anterior": 12, "bajas_actual": 17}, {"servicio": "Dúo (combo)", "altas_anterior": 5, "altas_actual": 0, "bajas_anterior": 1, "bajas_actual": 8}, {"servicio": "Dibox", "inferido": true, "altas_anterior": 1, "altas_actual": 6, "bajas_anterior": 7, "bajas_actual": 9}], "pendientes": [{"servicio": "TV", "cantidad": 0}, {"servicio": "Internet", "cantidad": 0}, {"servicio": "Dúo (combo)", "cantidad": 0}], "activos": [{"servicio": "TV", "cantidad": 398}, {"servicio": "Internet", "cantidad": 301}, {"servicio": "Dúo (combo)", "cantidad": 433}], "saldo_clientes": {"saldo_inicial": 1146, "altas": 13, "recupero": 0, "bajas_vol": 17, "bajas_mora": 24, "migracion": 0, "saldo_final": 1118}, "medios_cobro": {"total": 47808735.2, "fecha_desde": "01-08-2026", "fecha_hasta": "31-08-2026", "segmentos": [{"medio": "#12 Mercado Pago (MERCADOLIBRE SRL - )", "monto": 33062757.81, "pct": 69.16}, {"medio": "#9 CAJA ROMINA", "monto": 10867150.0, "pct": 22.73}, {"medio": "#2 Banco Roela (BANCO ROELA S.A. - )", "monto": 3134090.0, "pct": 6.56}, {"medio": "#1 Banco De La Pampa (BANCO DE LA PAMPA - 1612961)", "monto": 744737.39, "pct": 1.56}]}, "arpu_residencial": 43130.96, "churn_residencial": 3.58}, {"id": "difusoracastex", "label": "Difusora Castex", "cache_hasta": "31-08-2026", "facturado": {"anterior": 65970260.69, "actual": 65269592.09}, "cobrado": {"anterior": 66217530.39, "actual": 62527557.31}, "cobrado_comparativa": {"fecha_actual": "31-08-2026", "dias_habiles_actual": 21, "fecha_anterior": "28-07-2026", "dias_habiles_anterior": 20, "cobr_anterior": 57920120.28}, "altas_bajas": [{"servicio": "TV", "altas_anterior": 7, "altas_actual": 2, "bajas_anterior": 17, "bajas_actual": 6}, {"servicio": "Internet", "altas_anterior": 3, "altas_actual": 4, "bajas_anterior": 5, "bajas_actual": 7}, {"servicio": "Dúo (combo)", "altas_anterior": 2, "altas_actual": 2, "bajas_anterior": 6, "bajas_actual": 4}, {"servicio": "Dibox", "inferido": true, "altas_anterior": 2, "altas_actual": 1, "bajas_anterior": 3, "bajas_actual": 284}], "pendientes": [{"servicio": "TV", "cantidad": 0}, {"servicio": "Internet", "cantidad": 0}, {"servicio": "Dúo (combo)", "cantidad": 0}], "activos": [{"servicio": "TV", "cantidad": 440}, {"servicio": "Internet", "cantidad": 407}, {"servicio": "Dúo (combo)", "cantidad": 620}], "saldo_clientes": {"saldo_inicial": 1705, "altas": 6, "recupero": 0, "bajas_vol": 6, "bajas_mora": 10, "migracion": 0, "saldo_final": 1695}, "medios_cobro": {"total": 62527557.32, "fecha_desde": "01-08-2026", "fecha_hasta": "31-08-2026", "segmentos": [{"medio": "#2 Caja0002", "monto": 26639270.19, "pct": 42.6}, {"medio": "#15 Mastercard Debito", "monto": 12005590.01, "pct": 19.2}, {"medio": "#8 Banco de la Pampa Cta. Cta (BANCO DE LA PAMPA - )", "monto": 11730147.09, "pct": 18.76}, {"medio": "#5 Caja0005 - Camara de Comercio", "monto": 3884320.0, "pct": 6.21}, {"medio": "#11 Banco Roela (BANCO ROELA S.A. - 25113/5)", "monto": 3079700.03, "pct": 4.93}, {"medio": "#3 Caja0003", "monto": 2567950.0, "pct": 4.11}, {"medio": "#20 QR MERCADO PAGO", "monto": 1177540.0, "pct": 1.88}, {"medio": "#14 Mastercard Credito", "monto": 703560.0, "pct": 1.13}, {"medio": "#12 Visa Credito", "monto": 444350.0, "pct": 0.71}, {"medio": "#13 Visa Debito", "monto": 226130.0, "pct": 0.36}, {"medio": "#9 Banco Nacion Cta Cte (BANCO DE LA NACION ARGENTINA - )", "monto": 69000.0, "pct": 0.11}]}, "arpu_residencial": 36868.38, "churn_residencial": 0.94}]};
+
+function fmtMillones(v) {
+  if (v === null || v === undefined) return "--";
+  return "$" + (v / 1e6).toLocaleString("es-AR", {maximumFractionDigits: 1}) + "M";
+}
+function fmtPct(v) {
+  if (v === null || v === undefined) return "--";
+  return v.toLocaleString("es-AR", {maximumFractionDigits: 1}) + "%";
+}
+function fmtInt(v) {
+  if (v === null || v === undefined) return "--";
+  return Math.round(v).toLocaleString("es-AR");
+}
+function fmtMoneda(v) {
+  if (v === null || v === undefined) return "--";
+  return "$" + Math.round(v).toLocaleString("es-AR");
+}
+
+document.getElementById("fecha-actualizacion").textContent = DATA.generated_at;
+
+const chartInstances = {};
+const DONUT_COLORS = ["#1F4E78", "#70AD47", "#ED7D31", "#9E5CA8", "#C00000", "#FFC000",
+  "#4472C4", "#264478", "#997300", "#43682B", "#7030A0", "#548235", "#BF9000", "#375623", "#833C00"];
+
+function panelHtml(tab, idx) {
+  return `
+    <div class="kpis" id="kpis-${idx}"></div>
+    <h2>% Facturado vs Cobranza (Mes Anterior vs Mes Actual)</h2>
+    <div class="card"><canvas id="chartFactCobr-${idx}"></canvas></div>
+    <h2>Altas y Bajas por servicio — Mes Anterior vs Mes Actual</h2>
+    <div class="grid4" id="chartsServicio-${idx}"></div>
+    <h2>Instalaciones Pendientes por servicio</h2>
+    <div class="card"><canvas id="chartPendientes-${idx}"></canvas></div>
+    ${tab.saldo_clientes ? `<h2>Saldo de clientes únicos</h2><div class="kpis" id="saldo-${idx}"></div>` : ""}
+    <h2>Resumen de contratos activos</h2>
+    <div class="card"><canvas id="chartActivos-${idx}"></canvas></div>
+    ${tab.medios_cobro ? `
+    <h2>Distribución de medios de cobro (${tab.medios_cobro.fecha_desde} al ${tab.medios_cobro.fecha_hasta}, mes en curso)</h2>
+    <div class="card"><canvas id="chartMediosCobro-${idx}"></canvas></div>` : ""}
+  `;
+}
+
+function sugMax(...vals) {
+  const m = Math.max(...vals, 0);
+  return m > 0 ? m * 1.15 : undefined;
+}
+
+function renderPanelCharts(tab, idx) {
+  document.getElementById(`kpis-${idx}`).innerHTML = kpisHtml(tab);
+  if (tab.saldo_clientes) {
+    document.getElementById(`saldo-${idx}`).innerHTML = saldoClientesHtml(tab.saldo_clientes);
+  }
+  chartInstances[`fc-${idx}`] = new Chart(document.getElementById(`chartFactCobr-${idx}`), {
+    type: "bar",
+    data: {
+      labels: ["Mes Anterior", "Mes Actual (parcial)"],
+      datasets: [
+        { label: "Facturado", data: [tab.facturado.anterior, tab.facturado.actual], backgroundColor: "#1F4E78" },
+        { label: "Cobrado", data: [tab.cobrado.anterior, tab.cobrado.actual], backgroundColor: "#70AD47" },
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: "bottom" },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmtMillones(c.raw)}` } } },
+      scales: {
+        x: { ticks: { maxRotation: 0, minRotation: 0 } },
+        y: { suggestedMax: sugMax(tab.facturado.anterior, tab.facturado.actual, tab.cobrado.anterior, tab.cobrado.actual),
+              ticks: { callback: fmtMillones } }
+      }
+    }
+  });
+
+  const contSrv = document.getElementById(`chartsServicio-${idx}`);
+  contSrv.innerHTML = "";
+  tab.altas_bajas.forEach((s, i) => {
+    const nota = s.inferido
+      ? `<div class="nota">Inferido de facturación (ítems "Dibox"), no de contrato -- no existe como
+         producto/contrato propio en el CRM.</div>`
+      : "";
+    const wrap = document.createElement("div");
+    wrap.innerHTML = `<div class="card"><div style="font-weight:600;margin-bottom:8px;">${s.servicio}</div><canvas id="chartSrv-${idx}-${i}"></canvas>${nota}</div>`;
+    contSrv.appendChild(wrap);
+    chartInstances[`srv-${idx}-${i}`] = new Chart(wrap.querySelector("canvas"), {
+      type: "bar",
+      data: {
+        labels: ["Mes Anterior", "Mes Actual"],
+        datasets: [
+          { label: "Altas", data: [s.altas_anterior, s.altas_actual], backgroundColor: "#70AD47" },
+          { label: "Bajas", data: [s.bajas_anterior, s.bajas_actual], backgroundColor: "#C0392B" },
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: "bottom" } },
+        scales: {
+          x: { ticks: { maxRotation: 0, minRotation: 0 } },
+          y: { suggestedMax: sugMax(s.altas_anterior, s.altas_actual, s.bajas_anterior, s.bajas_actual),
+                ticks: { precision: 0 } }
+        }
+      }
+    });
+  });
+
+  chartInstances[`pend-${idx}`] = new Chart(document.getElementById(`chartPendientes-${idx}`), {
+    type: "bar",
+    data: {
+      labels: tab.pendientes.map(p => p.servicio),
+      datasets: [{ label: "Instalaciones Pendientes", data: tab.pendientes.map(p => p.cantidad), backgroundColor: "#1F4E78" }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { maxRotation: 0, minRotation: 0 } },
+        y: { suggestedMax: sugMax(...tab.pendientes.map(p => p.cantidad)), ticks: { precision: 0 } }
+      }
+    }
+  });
+
+  chartInstances[`activos-${idx}`] = new Chart(document.getElementById(`chartActivos-${idx}`), {
+    type: "bar",
+    data: {
+      labels: tab.activos.map(a => a.servicio),
+      datasets: [{ label: "Contratos Activos", data: tab.activos.map(a => a.cantidad), backgroundColor: "#1F4E78" }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { maxRotation: 0, minRotation: 0 } },
+        y: { suggestedMax: sugMax(...tab.activos.map(a => a.cantidad)), ticks: { precision: 0 } }
+      }
+    }
+  });
+
+  if (tab.medios_cobro) {
+    const mc = tab.medios_cobro;
+    chartInstances[`mediocobro-${idx}`] = new Chart(document.getElementById(`chartMediosCobro-${idx}`), {
+      type: "doughnut",
+      data: {
+        labels: mc.segmentos.map(s => s.medio),
+        datasets: [{ data: mc.segmentos.map(s => s.monto),
+          backgroundColor: mc.segmentos.map((s, i) => DONUT_COLORS[i % DONUT_COLORS.length]) }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "right" },
+          tooltip: { callbacks: { label: c => `${c.label}: ${fmtMillones(c.raw)} (${mc.segmentos[c.dataIndex].pct}%)` } }
+        }
+      }
+    });
+  }
+}
+
+function saldoClientesHtml(s) {
+  const kpis = [
+    ["Saldo inicial de clientes (1er día del mes)", fmtInt(s.saldo_inicial)],
+    ["Altas (mes, acumulado)", fmtInt(s.altas)],
+    ["Recupero (mes, acumulado)", fmtInt(s.recupero)],
+    ["Bajas voluntarias (mes, acumulado)", fmtInt(s.bajas_vol)],
+    ["Bajas por mora (mes, acumulado)", fmtInt(s.bajas_mora)],
+  ];
+  if (s.migracion) kpis.push(["Migración (mes, acumulado)", fmtInt(s.migracion)]);
+  kpis.push(["Saldo final de clientes (activos a hoy)", fmtInt(s.saldo_final)]);
+  return kpis.map(([label, valor]) =>
+    `<div class="kpi"><div class="label">${label}</div><div class="valor">${valor}</div></div>`
+  ).join("");
+}
+
+function kpisHtml(tab) {
+  const pctCobr = tab.facturado.actual ? (tab.cobrado.actual / tab.facturado.actual) * 100 : null;
+  const totalPend = tab.pendientes.reduce((s, p) => s + p.cantidad, 0);
+  const kpis = [
+    ["Facturado (mes actual)", fmtMillones(tab.facturado.actual)],
+  ];
+  if (tab.cache_hasta && tab.cobrado_comparativa) {
+    const dhLabel = n => n === 1 ? "1 día hábil transcurrido" : `${n} días hábiles transcurridos`;
+    const c = tab.cobrado_comparativa;
+    kpis.push([`Cobrado (mes actual, al ${c.fecha_actual}) — ${dhLabel(c.dias_habiles_actual)}`,
+                fmtMillones(tab.cobrado.actual)]);
+    kpis.push([`Cobrado (mes anterior, al mismo día ${c.fecha_anterior}) — ${dhLabel(c.dias_habiles_anterior)}`,
+                fmtMillones(c.cobr_anterior)]);
+  } else {
+    kpis.push(["Cobrado (mes actual, parcial)", fmtMillones(tab.cobrado.actual)]);
+  }
+  kpis.push(["ARPU residencial (mes)", fmtMoneda(tab.arpu_residencial)]);
+  kpis.push(["Churn residencial (mes)", fmtPct(tab.churn_residencial)]);
+  kpis.push(["% Cobranza sobre Facturado", fmtPct(pctCobr)]);
+  kpis.push(["Instalaciones Pendientes (total)", fmtInt(totalPend)]);
+  return kpis.map(([label, valor]) =>
+    `<div class="kpi"><div class="label">${label}</div><div class="valor">${valor}</div></div>`
+  ).join("");
+}
+
+const nav = document.getElementById("tabNav");
+const panels = document.getElementById("tabPanels");
+const initialized = {};
+
+DATA.tabs.forEach((tab, idx) => {
+  const btn = document.createElement("button");
+  btn.textContent = tab.label;
+  btn.addEventListener("click", () => showTab(idx));
+  nav.appendChild(btn);
+
+  const panel = document.createElement("div");
+  panel.id = `panel-${idx}`;
+  panel.style.display = "none";
+  panel.innerHTML = panelHtml(tab, idx);
+  panels.appendChild(panel);
+});
+
+function showTab(idx) {
+  Array.from(nav.children).forEach((b, i) => b.classList.toggle("active", i === idx));
+  Array.from(panels.children).forEach((p, i) => p.style.display = i === idx ? "" : "none");
+  if (!initialized[idx]) {
+    renderPanelCharts(DATA.tabs[idx], idx);
+    initialized[idx] = true;
+  }
+}
+
+showTab(0);
+</script>
+<script>
+// Auto-reload cuando hay una build mas nueva publicada -- el dashboard se comparte como link
+// (y como icono "agregar a inicio" en celulares) a las 10 franquicias, no podemos depender de que
+// alguien fuerce un refresh manual. Re-descarga este mismo HTML con cache:'no-store' cada 90s
+// mientras la pestana esta visible, y ademas al volver a primer plano (cubre el caso del icono de
+// pantalla de inicio que reusa el mismo WebView), y compara el generated_at embebido via regex
+// (evita crear un archivo aparte para no duplicar la fuente de verdad).
+(function() {
+  var CHECK_MS = 90000;
+  var RE_GENERATED_AT = /"generated_at":\s*"([^"]+)"/;
+  function checkVersion() {
+    if (document.hidden) return;
+    fetch(location.pathname + "?_=" + Date.now(), {cache: "no-store"})
+      .then(function(r) { return r.text(); })
+      .then(function(html) {
+        var m = html.match(RE_GENERATED_AT);
+        if (m && m[1] !== DATA.generated_at) {
+          console.log("Dashboard: nueva version detectada (" + DATA.generated_at + " -> " + m[1] + "), recargando...");
+          location.reload();
+        }
+      })
+      .catch(function(e) { /* sin conexion -- no hacer nada */ });
+  }
+  setInterval(checkVersion, CHECK_MS);
+  document.addEventListener("visibilitychange", function() { if (!document.hidden) checkVersion(); });
+})();
+</script>
+</body>
+</html>
